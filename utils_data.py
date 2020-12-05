@@ -14,31 +14,44 @@ C_data: 选取每个传感器的8个数据中的第1个数据
 import scipy.io as scio
 import numpy as np
 
-def loadmat_1(matdir, shuffle=True):
+
+def loadmat_1(matdir, batch, shuffle=True, split=0.8):
     """
     :param shuffle: shuffle or not
     :param matdir: directory of .mat file
-    :return: [data_train, label_train, data_test, label_test] (3600,8,16,1) (3600, 6)
+    :param batch: select 1~10 batch
+    :param split: validation split
+    :return: [sdata_train, label_train, data_test, label_test] (?,8,16,1) (?, 6)
     """
+    assert batch > 0 & batch < 11, "Please input correct batch number"
     data = scio.loadmat(matdir)
-    label = data['C_label'][0, 9].swapaxes(0, 1)   # (3600, 6)
-    data = data['batch'][0, 9].reshape(3600, 16, 8, 1).swapaxes(1, 2)  # (3600, 8, 16, 1)
+    label = data['C_label'][0, batch - 1].swapaxes(0, 1)  # (?, 6)
+    length = label.shape[0]
+    data = data['batch'][0, batch - 1].reshape(length, 16, 8, 1).swapaxes(1, 2)  # (?, 8, 16, 1)
     if shuffle:
         state = np.random.get_state()
         np.random.shuffle(data)
         np.random.set_state(state)
         np.random.shuffle(label)
-    return data[0:2799], label[0:2799], data[2800:], label[2800:]
+    if split == 1:
+        return data[0:length], label[0:length], [], []
+    elif split == 0:
+        return [], [], data[0:length], label[0:length]
+    else:
+        return data[0:int(length * split)], label[0:int(length * split)], data[int(length * split) + 1:], label[int(
+            length * split) + 1:]
+
 
 def loadmat_2(matdir):
     """
     :param matdir: directory of .mat file
-    :return: [data_train, label] (3600,2,4,16) (6, 3600)
+    :return: [sdata_train, label] (3600,2,4,16) (6, 3600)
     """
     data = scio.loadmat(matdir)
     label = data['C_label'][0, 9].swapaxes(0, 1)  # (6, 3600) TODO 有错误
     data = data['batch'][0, 9].reshape(3600, 16, 2, 4).swapaxes(1, 2).swapaxes(2, 3)  # (3600, 2, 4, 16)
     return data, label
+
 
 def acc_calc(label, result):
     """
@@ -56,6 +69,9 @@ def acc_calc(label, result):
         else:
             wrong[result[index]] = wrong[result[index]] + 1  # TODO 有错误，不会影响总精度计算，但会导致各气体精度错误
     for index in range(6):
-        acc.append(right[index] / (right[index] + wrong[index]))
+        if right[index] + wrong[index] != 0:
+            acc.append(right[index] / (right[index] + wrong[index]))
+        else:
+            acc.append(0)
     acc.append(sum(right) / (sum(right) + sum(wrong)))
     return acc

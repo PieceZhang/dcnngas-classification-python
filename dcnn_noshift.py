@@ -6,18 +6,18 @@ import time
 
 if __name__ == '__main__':
     matdir = 'D:/A_/2020.11_CNN/Batch.mat'  # directory of .mat file
-    data_train, label_train, data_test, label_test = loadmat_1(matdir, shuffle=True)
+    data_train, label_train, data_test, label_test = loadmat_1(matdir, batch=10, shuffle=True)
 
     '''Train Network & Save Model'''
-    # model = net.network_2()
-    # history = model.fit(data_train, label_train, batch_size=100, epochs=25, verbose=1,
-    #                     callbacks=None, validation_split=0.0, validation_data=None, shuffle=True,
-    #                     class_weight=None, sample_weight=None, initial_epoch=0)
+    model = net.network_2()
+    history = model.fit(data_train, label_train, batch_size=100, epochs=50, verbose=1,
+                        callbacks=None, validation_split=0.0, validation_data=None, shuffle=True,
+                        class_weight=None, sample_weight=None, initial_epoch=0)
     # model.save('./dcnn_1.h5')
 
     '''Load model from file & Predict'''
-    model = km.load_model('./h5bkp/dcnn_2.h5')
-    model.summary()
+    # model = km.load_model('./h5bkp/dcnn_2.h5')
+    # model.summary()
     t0 = time.clock()
     result = model.predict_on_batch(data_test)
     t1 = time.clock() - t0

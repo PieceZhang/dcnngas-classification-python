@@ -123,7 +123,7 @@ def network_1e():
     return model
 
 
-def network_2():
+def network_2(summary=True):
     """
     reference: Gas Classification Using Deep Convolutional Neural Networks
     Total params: 685,382
@@ -205,6 +205,7 @@ def network_2():
     outputs = kl.Dense(units=6, activation='softmax')(GAP)
 
     model = km.Model(inputs=inputs, outputs=outputs)
-    model.summary()
+    if summary:
+        model.summary()
     model.compile(optimizer='SGD', loss='categorical_crossentropy', metrics=['accuracy'])
     return model
