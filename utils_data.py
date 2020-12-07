@@ -1,5 +1,5 @@
 """
-MAT file: 16个传感器，每个传感器产生8个数据，总共6种气体 TODO 每个传感器产生的8个数据是指什么？是时间维度上的8个数据吗？
+MAT file: 16个传感器，每个传感器产生8个数据，总共6种气体
 C_data: 选取每个传感器的8个数据中的第1个数据
 1.（2020）An optimized Deep Convolutional Neural Network for dendrobium classification based on electronic nose：
 输入图（8,16,1）, (temporal, sensor, 1)
@@ -33,10 +33,41 @@ def loadmat_1(matdir, batch, shuffle=True, split=0.8):
         np.random.shuffle(data)
         np.random.set_state(state)
         np.random.shuffle(label)
-    if split == 1:
-        return data[0:length], label[0:length], [], []
-    elif split == 0:
-        return [], [], data[0:length], label[0:length]
+    if split == 1 or split == 0:
+        return data[0:length], label[0:length]
+    else:
+        return data[0:int(length * split)], label[0:int(length * split)], data[int(length * split) + 1:], label[int(
+            length * split) + 1:]
+
+
+def loadmat_1_SDA(matdir, batch=None, shuffle=True, split=0.8):
+    """
+    load data for SDA (?, 1, 128)
+    :param batch: select batch
+    :param shuffle: shuffle or not
+    :param matdir: directory of .mat file
+    :param split: validation split
+    :return: [sdata_train, label_train, data_test, label_test] (?,8,16,1) (?, 6)
+    """
+    if batch is None:
+        batch = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+    label = np.empty([0, 6])
+    data = np.empty([0, 1, 128])
+    origindata = scio.loadmat(matdir)
+    for index in batch:
+        clabel = origindata['C_label'][0, index-1].swapaxes(0, 1)  # (?, 6)
+        length = clabel.shape[0]
+        cdata = origindata['batch'][0, index-1].reshape(length, 128, 1).swapaxes(1, 2)  # (?, 1, 128)
+        label = np.concatenate((label, clabel))
+        data = np.concatenate((data, cdata))
+    if shuffle:
+        state = np.random.get_state()
+        np.random.shuffle(data)
+        np.random.set_state(state)
+        np.random.shuffle(label)
+    length = label.shape[0]
+    if split == 1 or split == 0:
+        return data[0:length], label[0:length]
     else:
         return data[0:int(length * split)], label[0:int(length * split)], data[int(length * split) + 1:], label[int(
             length * split) + 1:]

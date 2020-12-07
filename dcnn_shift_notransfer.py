@@ -5,12 +5,12 @@ import numpy as np
 import time
 
 if __name__ == '__main__':
-    matdir = 'D:/A_/2020.11_CNN/Batch.mat'  # directory of .mat file
+    matdir = 'D:/A_/Enose_datasets/10board/Batch.mat'  # directory of .mat file
 
     for sbatch in range(1, 11):
         tbatch = sbatch + 1 if sbatch != 10 else 1
-        sdata, slabel, ignore, ignore = loadmat_1(matdir, batch=sbatch, shuffle=True, split=1)
-        ignore, ignore, tdata, tlabel = loadmat_1(matdir, batch=tbatch, shuffle=True, split=0)
+        sdata, slabel = loadmat_1(matdir, batch=sbatch, shuffle=True, split=1)
+        tdata, tlabel = loadmat_1(matdir, batch=tbatch, shuffle=True, split=0)
         '''Train Network & Save Model'''
         model = net.network_2(summary=False)
         history = model.fit(sdata, slabel, batch_size=100, epochs=80, verbose=1,

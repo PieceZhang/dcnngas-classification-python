@@ -5,7 +5,7 @@ import numpy as np
 import time
 
 if __name__ == '__main__':
-    matdir = 'D:/A_/2020.11_CNN/Batch.mat'  # directory of .mat file
+    matdir = 'D:/A_/Enose_datasets/10board/Batch.mat'  # directory of .mat file
     data_train, label_train, data_test, label_test = loadmat_1(matdir, batch=10, shuffle=True)
 
     '''Train Network & Save Model'''

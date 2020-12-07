@@ -209,3 +209,52 @@ def network_2(summary=True):
         model.summary()
     model.compile(optimizer='SGD', loss='categorical_crossentropy', metrics=['accuracy'])
     return model
+
+# add shift:
+def SDA_1(summary=True):
+    """
+    reference: Domain Adaptation for Large-Scale Sentiment Classification: A Deep Learning Approach
+    :return: encoder-decoder model (for training), encoder model
+    """
+    inputs = kl.Input(shape=(1,128))
+    encode = kl.Dense(64, activation='relu')(inputs)
+    encode = kl.Dense(32, activation='relu')(encode)
+    encode_output = kl.Dense(16)(encode)  # reduce to 16 dims
+    decode = kl.Dense(32, activation='relu')(encode_output)
+    decode = kl.Dense(64, activation='relu')(decode)
+    decode_output = kl.Dense(128, activation='relu')(decode)
+    encoder_decoder = km.Model(inputs=inputs, outputs=decode_output)  # encoder-decoder model (for training)
+    encoder = km.Model(inputs=inputs, outputs=encode_output)  # encoder model
+    if summary:
+        encoder_decoder.summary()
+    encoder_decoder.compile(optimizer='adam', loss='mse')
+    return encoder_decoder, encoder
+
+def network_1a_SDA(summary=True):
+    """
+    reference: An optimized Deep Convolutional Neural Network for dendrobium classification based on electronic nose
+    connected with SDA1
+    :return: model
+    """
+    inputs = kl.Input(shape=(16, 1, 1))
+    # bone = kl.BatchNormalization(1)(inputs)  # modified: 加入BN层，极大加快收敛速度并提高准确率
+    bone = kl.Conv2D(filters=32, kernel_size=(2, 1), padding='same',
+                     activation='relu', strides=(1, 1))(inputs)
+    bone = kl.MaxPool2D(pool_size=(2, 1), strides=(2, 1), padding='same')(bone)
+    bone = kl.Conv2D(filters=16, kernel_size=(2, 1), padding='same',
+                     activation='relu', strides=(1, 1))(bone)
+    bone = kl.MaxPool2D(pool_size=(2, 1), strides=(2, 1), padding='same')(bone)
+    bone = kl.Conv2D(filters=16, kernel_size=(2, 1), padding='same',
+                     activation='relu', strides=(1, 1))(bone)
+    bone = kl.Conv2D(filters=16, kernel_size=(2, 1), padding='same',
+                     activation='relu', strides=(1, 1))(bone)
+    bone = kl.Conv2D(filters=16, kernel_size=(2, 1), padding='same',
+                     activation='relu', strides=(1, 1))(bone)
+    bone = kl.Flatten()(bone)
+    bone = kl.Dense(units=1024, activation='relu')(bone)
+    outputs = kl.Dense(units=6, activation='softmax')(bone)
+    model = km.Model(inputs=inputs, outputs=outputs)
+    if summary:
+        model.summary()
+    model.compile(optimizer='adam', loss='categorical_crossentropy', metrics=['accuracy'])
+    return model
