@@ -6,20 +6,36 @@ import time
 
 if __name__ == '__main__':
     matdir = 'D:/A_/Enose_datasets/10board/Batch.mat'  # directory of .mat file
+    accrecord = np.ndarray((10, 10))
+    for sbatch in range(1, 11):
+        model = km.load_model('./dcnn_{}.h5'.format(sbatch))
+        for tbatch in range(1, 11):
+            tdata, tlabel = loadmat_1(matdir, batch=tbatch, shuffle=True, split=0)
+            result = model.predict(tdata)
+            acc = acc_calc(tlabel, result)
+            accrecord[sbatch-1, tbatch-1] = acc[6]
+            print("\n=================validation=================\n")
+            print("S domain: {} \nT domain: {}".format(sbatch, tbatch))
+            print("Accuracy: {}".format(acc[6]))
+    print("\nFinished")
 
+
+
+"""
+    matdir = 'D:/A_/Enose_datasets/10board/Batch.mat'  # directory of .mat file
     for sbatch in range(1, 11):
         tbatch = sbatch + 1 if sbatch != 10 else 1
         sdata, slabel = loadmat_1(matdir, batch=sbatch, shuffle=True, split=1)
         tdata, tlabel = loadmat_1(matdir, batch=tbatch, shuffle=True, split=0)
         '''Train Network & Save Model'''
-        model = net.network_2(summary=False)
-        history = model.fit(sdata, slabel, batch_size=100, epochs=80, verbose=1,
-                            callbacks=None, validation_split=0.0, validation_data=None, shuffle=True,
-                            class_weight=None, sample_weight=None, initial_epoch=0)
-        model.save('./dcnn_{}_{}.h5'.format(sbatch, tbatch))
+        # model = net.network_2(summary=False)
+        # history = model.fit(sdata, slabel, batch_size=100, epochs=80, verbose=1,
+        #                     callbacks=None, validation_split=0.0, validation_data=None, shuffle=True,
+        #                     class_weight=None, sample_weight=None, initial_epoch=0)
+        # model.save('./dcnn_{}.h5'.format(sbatch))
         '''Load model from file & Predict'''
-        # model = km.load_model('./dcnn_{}_{}.h5'.format(sbatch, tbatch))
-        # model.summary()
+        model = km.load_model('./dcnn_{}.h5'.format(sbatch))
+        model.summary()
         t0 = time.clock()
         result = model.predict_on_batch(tdata)
         t1 = time.clock() - t0
@@ -29,7 +45,7 @@ if __name__ == '__main__':
         print("总精度:{}\n气体1上的精度：{}\n气体2上的精度：{}\n气体3上的精度：{}".format(acc[6],acc[0],acc[1],acc[2]))
         print("气体4上的精度：{}\n气体5上的精度：{}\n气体6上的精度：{}".format(acc[3],acc[4],acc[5]))
         print("{}个样本共耗时：{}".format(tlabel.shape[0], t1))
-"""
+        
 S domain: 1 
 T domain: 2
 总精度:0.4590032154340836
