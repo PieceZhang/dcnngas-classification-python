@@ -1,4 +1,5 @@
 """
+Ref: Chmical gas sensor drift compensation using calssifier ensembles
 MAT file: 16个传感器，每个传感器产生8个数据，总共6种气体
 C_data: 选取每个传感器的8个数据中的第1个数据
 1.（2020）An optimized Deep Convolutional Neural Network for dendrobium classification based on electronic nose：
@@ -71,17 +72,6 @@ def loadmat_1_SDA(matdir, batch=None, shuffle=True, split=0.8):
     else:
         return data[0:int(length * split)], label[0:int(length * split)], data[int(length * split) + 1:], label[int(
             length * split) + 1:]
-
-
-def loadmat_2(matdir):
-    """
-    :param matdir: directory of .mat file
-    :return: [sdata_train, label] (3600,2,4,16) (6, 3600)
-    """
-    data = scio.loadmat(matdir)
-    label = data['C_label'][0, 9].swapaxes(0, 1)  # (6, 3600) TODO 有错误
-    data = data['batch'][0, 9].reshape(3600, 16, 2, 4).swapaxes(1, 2).swapaxes(2, 3)  # (3600, 2, 4, 16)
-    return data, label
 
 
 def acc_calc(label, result):
