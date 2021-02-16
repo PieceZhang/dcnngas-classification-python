@@ -1,7 +1,7 @@
 """
-Ref: Chmical gas sensor drift compensation using calssifier ensembles
-MAT file: 16个传感器，每个传感器产生8个数据，总共6种气体
-C_data: 选取每个传感器的8个数据中的第1个数据
+10 boards:
+    MAT file: 16个传感器，每个传感器产生8个数据，总共6种气体
+    C_data: 选取每个传感器的8个数据中的第1个数据
 1.（2020）An optimized Deep Convolutional Neural Network for dendrobium classification based on electronic nose：
 输入图（8,16,1）, (temporal, sensor, 1)
 带状卷积核，只在temporal dimension(size=8，时间维度)上卷积，隔离相互间无关的sensor dimension(size=16，传感器维度)
@@ -18,6 +18,7 @@ import numpy as np
 
 def loadmat_1(matdir, batch, shuffle=True, split=0.8):
     """
+    10 boards
     :param shuffle: shuffle or not
     :param matdir: directory of .mat file
     :param batch: select 1~10 batch
@@ -56,9 +57,9 @@ def loadmat_1_SDA(matdir, batch=None, shuffle=True, split=0.8):
     data = np.empty([0, 1, 128])
     origindata = scio.loadmat(matdir)
     for index in batch:
-        clabel = origindata['C_label'][0, index-1].swapaxes(0, 1)  # (?, 6)
+        clabel = origindata['C_label'][0, index - 1].swapaxes(0, 1)  # (?, 6)
         length = clabel.shape[0]
-        cdata = origindata['batch'][0, index-1].reshape(length, 128, 1).swapaxes(1, 2)  # (?, 1, 128)
+        cdata = origindata['batch'][0, index - 1].reshape(length, 128, 1).swapaxes(1, 2)  # (?, 1, 128)
         label = np.concatenate((label, clabel))
         data = np.concatenate((data, cdata))
     if shuffle:
@@ -72,6 +73,42 @@ def loadmat_1_SDA(matdir, batch=None, shuffle=True, split=0.8):
     else:
         return data[0:int(length * split)], label[0:int(length * split)], data[int(length * split) + 1:], label[int(
             length * split) + 1:]
+
+
+def loadmat_2(matdir, shuffle=True, split=0.8):
+    """
+    5 boards (600s时间序列，只取前300s，30000个数据)
+    :param shuffle: shuffle or not
+    :param matdir: directory of .mat file
+    :param split: validation split
+    :return: [sdata_train, label_train, data_test, label_test] (?,8,16,1) (?, 6)
+    """
+
+    data = scio.loadmat(matdir)
+    data = np.concatenate((data['board1'][0, 0], data['board2'][0, 0], data['board3'][0, 0],
+                           data['board4'][0, 0], data['board5'][0, 0]), axis=1).swapaxes(0, 1)
+    label = np.ndarray((640, 1), dtype=int)
+    label[0:40, 0] = label[160:160 + 40, 0] = label[320:320 + 40, 0] = \
+        label[480:480 + 20, 0] = label[560:560 + 20, 0] = 1
+    label[40:80, 0] = label[160 + 40:160 + 80, 0] = label[320 + 40:320 + 80, 0] = \
+        label[480 + 20:480 + 40, 0] = label[560 + 20:560 + 40, 0] = 2
+    label[80:120, 0] = label[160 + 80:160 + 120, 0] = label[320 + 80:320 + 120, 0] = \
+        label[480 + 40:480 + 60, 0] = label[560 + 40:560 + 60, 0] = 3
+    label[120:160, 0] = label[160 + 120:160 + 160, 0] = label[320 + 120:320 + 160, 0] = \
+        label[480 + 60:480 + 80, 0] = label[560 + 60:560 + 80, 0] = 4
+    print()
+    # length = label.shape[0]
+    # data = data['board'][0, batch - 1].reshape(length, 16, 8, 1).swapaxes(1, 2)  # (?, 8, 16, 1)
+    # if shuffle:
+    #     state = np.random.get_state()
+    #     np.random.shuffle(data)
+    #     np.random.set_state(state)
+    #     np.random.shuffle(label)
+    # if split == 1 or split == 0:
+    #     return data[0:length], label[0:length]
+    # else:
+    #     return data[0:int(length * split)], label[0:int(length * split)], data[int(length * split) + 1:], label[int(
+    #         length * split) + 1:]
 
 
 def acc_calc(label, result):
@@ -96,3 +133,8 @@ def acc_calc(label, result):
             acc.append(0)
     acc.append(sum(right) / (sum(right) + sum(wrong)))
     return acc
+
+
+if __name__ == '__main__':
+    # for debugging
+    loadmat_2('D:/A_/Enose_datasets/5board/board_v7.mat')
