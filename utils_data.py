@@ -82,7 +82,7 @@ def loadmat_2(matdir, shuffle=True, split=0.8):
     5 boards (600s时间序列，只取后8列的前300s，30000个数据)
     :param shuffle: shuffle or not
     :param matdir: directory of .mat file
-    :param split: validation split, ex. split=0.9
+    :param split: validation split, ex. split=0.9, 90% data for training, others for testing
     :return: [sdata_train, label_train, data_test, label_test] (?,300,8,1) (?, 6)
     """
     tempt = scio.loadmat(matdir)

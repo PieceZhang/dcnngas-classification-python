@@ -6,14 +6,14 @@ import time
 
 if __name__ == '__main__':
     matdir = 'D:/A_/Enose_datasets/5board/board_lite.mat'  # directory of .mat file
-    data_train, label_train, data_test, label_test = loadmat_2(matdir, shuffle=True, split=0.1)
+    data_train, label_train, data_test, label_test = loadmat_2(matdir, shuffle=True, split=0.9)
 
     '''Train Network & Save Model'''
-    model = net.network_1a_5boards()
-    history = model.fit(data_train, label_train, batch_size=100, epochs=80, verbose=1,
+    model = net.network_2_5boards()
+    history = model.fit(data_train, label_train, batch_size=80, epochs=150, verbose=1,
                         callbacks=None, validation_split=0.0, validation_data=[data_test, label_test], shuffle=True,
                         class_weight=None, sample_weight=None, initial_epoch=0)
-    # model.save('./dcnn_1.h5')
+    model.save('./dcnn_5board.h5')
 
     '''Load model from file & Predict'''
     # model = km.load_model('./h5bkp/dcnn_2.h5')
