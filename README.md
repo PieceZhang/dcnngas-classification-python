@@ -2,9 +2,12 @@
 
 ### DCNN分类电子鼻数据集，并尝试使用SDA进行漂移补偿（效果不好）
 #### Ref:  
-1. _An optimized Deep Convolutional Neural Network for dendrobium classification based on electronic nose_ 
+1. *An optimized Deep Convolutional Neural Network for dendrobium classification based on electronic nose* 
 
-2. _Gas Classification Using Deep Convolutional Neural Networks_ 
+2. *Gas Classification Using Deep Convolutional Neural Networks* 
 
-3. _Domain Adaptation for Large-Scale Sentiment Classification: A Deep Learning Approach_
+3. *Domain Adaptation for Large-Scale Sentiment Classification: A Deep Learning Approach*
 
+#### Datasets:
+1. 10 boards, Ref: *Chmical gas sensor drift compensation using calssifier ensembles*
+2. 5 boards, Ref: *Calibration transfer and drift counteraction in chemical sensor arrays using Direct Standardization*
