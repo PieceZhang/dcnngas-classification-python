@@ -14,8 +14,8 @@ def shift1_fit(matdir):
     for sbatch in range(1, 11):
         sdata, slabel = loadmat_1(matdir, batch=sbatch, shuffle=True, split=1)
         '''Train Network & Save Model'''
-        model = net.network_2(summary=False)
-        model.fit(sdata, slabel, batch_size=100, epochs=40, verbose=1,
+        model = net.network_1b()
+        model.fit(sdata, slabel, batch_size=100, epochs=80, verbose=1,
                   callbacks=None, validation_split=0.0, validation_data=None, shuffle=True,
                   class_weight=None, sample_weight=None, initial_epoch=0)
         model.save('./dcnn_{}.h5'.format(sbatch))
@@ -66,7 +66,7 @@ def shift2_onlyprevious_fit(matdir):
     trained the classifier with data from only the previous month and tested it on the current month.
     :return:
     """
-    callback = keras.callbacks.EarlyStopping(monitor='acc', min_delta=0.005, patience=10, verbose=1, mode='auto',)
+    callback = keras.callbacks.EarlyStopping(monitor='acc', min_delta=0.005, patience=10, verbose=1, mode='auto')
     for tbatch in range(2, 11):
         sdata = np.ndarray((0, 8, 16, 1))
         slabel = np.ndarray((0, 6))
@@ -107,5 +107,5 @@ def shift2_predict(matdir):
 
 if __name__ == '__main__':
     filepath = 'D:/A_/Enose_datasets/10board/Batch.mat'  # directory of .mat file
-    shift2_onlyprevious_fit(filepath)
-    shift2_predict(filepath)
+    shift1_fit(filepath)
+    shift1_predict(filepath)

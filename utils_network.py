@@ -37,7 +37,7 @@ def network_1a():
 def network_1a_5boards():
     """
     reference: An optimized Deep Convolutional Neural Network for dendrobium classification based on electronic nose
-    改用5boards数据集
+    改用5boards数据集，使用FC512
     :return: model
     """
     inputs = kl.Input(shape=(300, 8, 1))
@@ -219,7 +219,78 @@ def network_2(summary=True):
     GAP = kl.GlobalAveragePooling2D(data_format='channels_last')(block6)
     # output
     outputs = kl.Dense(units=6, activation='softmax')(GAP)
+    model = km.Model(inputs=inputs, outputs=outputs)
+    if summary:
+        model.summary()
+    model.compile(optimizer='SGD', loss='categorical_crossentropy', metrics=['accuracy'])
+    return model
 
+
+def network_2_1dconv(summary=True):
+    """
+    reference: Gas Classification Using Deep Convolutional Neural Networks
+    use 1D conv kernel  TODO 进行实测
+    :return: model
+    """
+    # input
+    inputs = kl.Input(shape=(8, 16, 1))
+    # block 1
+    block1 = kl.Conv2D(filters=32, kernel_size=(2, 1), padding='same', strides=(1, 1))(inputs)
+    block1 = kl.BatchNormalization(1)(block1)
+    block1 = kl.Activation('relu')(block1)
+    block1 = kl.Conv2D(filters=32, kernel_size=(2, 1), padding='same', strides=(1, 1))(block1)
+    block1 = kl.BatchNormalization(1)(block1)
+    block1 = kl.Activation('relu')(block1)
+    # block 2
+    block2 = kl.Conv2D(filters=32, kernel_size=(2, 1), padding='same', strides=(1, 1))(block1)
+    block2 = kl.BatchNormalization(1)(block2)
+    block2 = kl.Activation('relu')(block2)
+    block2 = kl.Conv2D(filters=32, kernel_size=(2, 1), padding='same', strides=(1, 1))(block2)
+    block2 = kl.BatchNormalization(1)(block2)
+    block2 = kl.Activation('relu')(block2)
+    block2 = kl.Add()([block1, block2])  # shortcut
+    # maxpooling 1
+    maxp1 = kl.MaxPool2D(pool_size=(2, 2), strides=(2, 2), padding='valid')(block2)
+    # block 3
+    block3 = kl.Conv2D(filters=64, kernel_size=(2, 1), padding='same', strides=(1, 1))(maxp1)
+    block3 = kl.BatchNormalization(1)(block3)
+    block3 = kl.Activation('relu')(block3)
+    block3 = kl.Conv2D(filters=64, kernel_size=(2, 1), padding='same', strides=(1, 1))(block3)
+    block3 = kl.BatchNormalization(1)(block3)
+    block3 = kl.Activation('relu')(block3)
+    block2 = kl.Conv2D(filters=64, kernel_size=(1, 1), padding='valid', strides=(2, 2))(block2)  # match dimension: 64, 1*1, 2
+    block3 = kl.Add()([block2, block3])  # shortcut
+    # block 4
+    block4 = kl.Conv2D(filters=64, kernel_size=(2, 1), padding='same', strides=(1, 1))(block3)
+    block4 = kl.BatchNormalization(1)(block4)
+    block4 = kl.Activation('relu')(block4)
+    block4 = kl.Conv2D(filters=64, kernel_size=(2, 1), padding='same', strides=(1, 1))(block4)
+    block4 = kl.BatchNormalization(1)(block4)
+    block4 = kl.Activation('relu')(block4)
+    block4 = kl.Add()([block3, block4])  # shortcut
+    # maxpooling 2
+    maxp2 = kl.MaxPool2D(pool_size=(2, 2), strides=(2, 2), padding='valid')(block4)
+    # block 5
+    block5 = kl.Conv2D(filters=128, kernel_size=(2, 1), padding='same', strides=(1, 1))(maxp2)
+    block5 = kl.BatchNormalization(1)(block5)
+    block5 = kl.Activation('relu')(block5)
+    block5 = kl.Conv2D(filters=128, kernel_size=(2, 1), padding='same', strides=(1, 1))(block5)
+    block5 = kl.BatchNormalization(1)(block5)
+    block5 = kl.Activation('relu')(block5)
+    block4 = kl.Conv2D(filters=128, kernel_size=(1, 1), padding='valid', activation=None, strides=(2, 2))(block4)  # match dimension: 128, 1*1, 2
+    block5 = kl.Add()([block4, block5])  # shortcut
+    # block 6
+    block6 = kl.Conv2D(filters=128, kernel_size=(2, 1), padding='same', strides=(1, 1))(block5)
+    block6 = kl.BatchNormalization(1)(block6)
+    block6 = kl.Activation('relu')(block6)
+    block6 = kl.Conv2D(filters=128, kernel_size=(2, 1), padding='same', strides=(1, 1))(block6)
+    block6 = kl.BatchNormalization(1)(block6)
+    block6 = kl.Activation('relu')(block6)
+    block6 = kl.Add()([block5, block6])  # shortcut
+    # Global Average Pooling(GAP)
+    GAP = kl.GlobalAveragePooling2D(data_format='channels_last')(block6)
+    # output
+    outputs = kl.Dense(units=6, activation='softmax')(GAP)
     model = km.Model(inputs=inputs, outputs=outputs)
     if summary:
         model.summary()
@@ -230,8 +301,6 @@ def network_2(summary=True):
 def network_2_5boards(summary=True):
     """
     reference: Gas Classification Using Deep Convolutional Neural Networks
-    Total params: 685,382
-    acc=0.995~0.998, size=5.38Mb, time=1.2s
     :return: model
     """
     # input
@@ -291,6 +360,8 @@ def network_2_5boards(summary=True):
     block6 = kl.Add()([block5, block6])  # shortcut
     # Global Average Pooling(GAP)
     GAP = kl.GlobalAveragePooling2D(data_format='channels_last')(block6)
+    # GAP = kl.Flatten()(GAP)
+    # GAP = kl.Dense(units=64, activation='relu')(GAP)
     # output
     outputs = kl.Dense(units=4, activation='softmax')(GAP)
 
@@ -301,7 +372,7 @@ def network_2_5boards(summary=True):
     return model
 
 
-# add shift:
+# add SDA:
 def SDA_1(summary=True):
     """
     reference: Domain Adaptation for Large-Scale Sentiment Classification: A Deep Learning Approach
@@ -350,7 +421,33 @@ def network_1a_SDA(summary=True):
     model.compile(optimizer='adam', loss='categorical_crossentropy', metrics=['accuracy'])
     return model
 
+# add memristor net
+def network_1_m():
+    """
+    network for memristor cnn simulink model
+    Total params: 8,230
+    Trainable params: 8,214
+    Non-trainable params: 16
+    acc: 0.983
+    :return: model
+    """
+    inputs = kl.Input(shape=(8, 16, 1))
+    bone = kl.BatchNormalization(1)(inputs)
+    bone = kl.Conv2D(filters=8, kernel_size=(2, 1), padding='same',
+                     activation='relu', strides=(1, 1))(bone)
+    bone = kl.MaxPool2D(pool_size=(2, 1), strides=(2, 1), padding='same')(bone)
+    bone = kl.Conv2D(filters=4, kernel_size=(2, 1), padding='same',
+                     activation='relu', strides=(1, 1))(bone)
+    bone = kl.MaxPool2D(pool_size=(2, 1), strides=(2, 1), padding='same')(bone)
+    bone = kl.Flatten()(bone)
+    bone = kl.Dense(units=60, activation='relu')(bone)
+    outputs = kl.Dense(units=6, activation='softmax')(bone)
+    model = km.Model(inputs=inputs, outputs=outputs)
+    model.summary()
+    model.compile(optimizer='adam', loss='categorical_crossentropy', metrics=['accuracy'])
+    return model
+
 
 if __name__ == '__main__':
     # for debugging
-    network_1a_5boards()
+    network_2_1dconv()
