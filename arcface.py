@@ -9,6 +9,9 @@ import utils_network as net
 import numpy as np
 
 class ArcFace(Layer):
+    """
+    Ref: ArcFace：Additive Angular Margin Loss for Deep Face Recognition
+    """
     def __init__(self, n_classes=10, s=30.0, m=0.50, regularizer=None, **kwargs):
         super(ArcFace, self).__init__(**kwargs)
         self.n_classes = n_classes

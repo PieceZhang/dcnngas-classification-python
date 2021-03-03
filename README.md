@@ -8,6 +8,8 @@
 
 3. *Domain Adaptation for Large-Scale Sentiment Classification: A Deep Learning Approach*
 
+4. *ArcFace：Additive Angular Margin Loss for Deep Face Recognition*
+
 #### Datasets:
 1. 10 boards, Ref: *Chmical gas sensor drift compensation using calssifier ensembles*
 2. 5 boards, Ref: *Calibration transfer and drift counteraction in chemical sensor arrays using Direct Standardization*
