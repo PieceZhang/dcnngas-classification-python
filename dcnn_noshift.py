@@ -11,8 +11,8 @@ if __name__ == '__main__':
                                                                shuffle=True, split=0.9, batch=10)
 
     '''Train Network & Save Model'''
-    model = net.network_1_m()
-    history = model.fit(data_train, label_train, batch_size=80, epochs=50, verbose=1,
+    model = net.network_1a()
+    history = model.fit(data_train, label_train, batch_size=80, epochs=30, verbose=1,
                         callbacks=None, validation_split=0.0, validation_data=[data_test, label_test], shuffle=True,
                         class_weight=None, sample_weight=None, initial_epoch=0)
     model.save('./dcnn_m.h5')

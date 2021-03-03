@@ -1,6 +1,8 @@
 from tensorflow.python.keras import layers as kl
 from tensorflow.python.keras import models as km
-from tensorflow.python.keras.backend import l2_normalize
+from tensorflow.python.keras import regularizers
+from arcface import ArcFace
+# from tensorflow.python.keras.backend import l2_normalize
 
 
 def network_1a():
@@ -29,6 +31,36 @@ def network_1a():
     bone = kl.Dense(units=1024, activation='relu')(bone)
     outputs = kl.Dense(units=6, activation='softmax')(bone)
     model = km.Model(inputs=inputs, outputs=outputs)
+    model.summary()
+    model.compile(optimizer='adam', loss='categorical_crossentropy', metrics=['accuracy'])
+    return model
+
+
+def network_1a_arcface():
+    """
+    reference: An optimized Deep Convolutional Neural Network for dendrobium classification based on electronic nose
+    add arcface  TODO 漂移补偿测试
+    :return: model
+    """
+    inputs = kl.Input(shape=(8, 16, 1))
+    label = kl.Input(shape=(6,))
+    bone = kl.BatchNormalization(1)(inputs)  # modified: 加入BN层，极大加快收敛速度并提高准确率  TODO 改为layernorm可能效果更好
+    bone = kl.Conv2D(filters=32, kernel_size=(2, 1), padding='same',
+                     activation='relu', strides=(1, 1))(bone)
+    bone = kl.MaxPool2D(pool_size=(2, 1), strides=(2, 1), padding='same')(bone)
+    bone = kl.Conv2D(filters=16, kernel_size=(2, 1), padding='same',
+                     activation='relu', strides=(1, 1))(bone)
+    bone = kl.MaxPool2D(pool_size=(2, 1), strides=(2, 1), padding='same')(bone)
+    bone = kl.Conv2D(filters=16, kernel_size=(2, 1), padding='same',
+                     activation='relu', strides=(1, 1))(bone)
+    bone = kl.Conv2D(filters=16, kernel_size=(2, 1), padding='same',
+                     activation='relu', strides=(1, 1))(bone)
+    bone = kl.Conv2D(filters=16, kernel_size=(2, 1), padding='same',
+                     activation='relu', strides=(1, 1))(bone)
+    bone = kl.Flatten()(bone)
+    bone = kl.Dense(units=150, activation='relu')(bone)
+    outputs = ArcFace(n_classes=6, s=10, m=0.5)([bone, label])
+    model = km.Model(inputs=[inputs, label], outputs=outputs)
     model.summary()
     model.compile(optimizer='adam', loss='categorical_crossentropy', metrics=['accuracy'])
     return model
@@ -450,4 +482,4 @@ def network_1_m():
 
 if __name__ == '__main__':
     # for debugging
-    network_2_1dconv()
+    network_1a()
