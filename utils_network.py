@@ -1,7 +1,7 @@
 from tensorflow.python.keras import layers as kl
 from tensorflow.python.keras import models as km
 from tensorflow.python.keras import regularizers
-from arcface import ArcFace
+from utils_arcface import ArcFace
 # from tensorflow.python.keras.backend import l2_normalize
 
 
@@ -261,7 +261,7 @@ def network_2(summary=True):
 def network_2_1dconv(summary=True):
     """
     reference: Gas Classification Using Deep Convolutional Neural Networks
-    use 1D conv kernel  TODO 进行实测
+    use 1D conv kernel, and use FC in the end
     :return: model
     """
     # input
@@ -282,7 +282,7 @@ def network_2_1dconv(summary=True):
     block2 = kl.Activation('relu')(block2)
     block2 = kl.Add()([block1, block2])  # shortcut
     # maxpooling 1
-    maxp1 = kl.MaxPool2D(pool_size=(2, 2), strides=(2, 2), padding='valid')(block2)
+    maxp1 = kl.MaxPool2D(pool_size=(2, 1), strides=(2, 1), padding='valid')(block2)
     # block 3
     block3 = kl.Conv2D(filters=64, kernel_size=(2, 1), padding='same', strides=(1, 1))(maxp1)
     block3 = kl.BatchNormalization(1)(block3)
@@ -290,7 +290,7 @@ def network_2_1dconv(summary=True):
     block3 = kl.Conv2D(filters=64, kernel_size=(2, 1), padding='same', strides=(1, 1))(block3)
     block3 = kl.BatchNormalization(1)(block3)
     block3 = kl.Activation('relu')(block3)
-    block2 = kl.Conv2D(filters=64, kernel_size=(1, 1), padding='valid', strides=(2, 2))(block2)  # match dimension: 64, 1*1, 2
+    block2 = kl.Conv2D(filters=64, kernel_size=(1, 1), padding='valid', strides=(2, 1))(block2)  # match dimension: 64, 1*1, 2
     block3 = kl.Add()([block2, block3])  # shortcut
     # block 4
     block4 = kl.Conv2D(filters=64, kernel_size=(2, 1), padding='same', strides=(1, 1))(block3)
@@ -301,7 +301,7 @@ def network_2_1dconv(summary=True):
     block4 = kl.Activation('relu')(block4)
     block4 = kl.Add()([block3, block4])  # shortcut
     # maxpooling 2
-    maxp2 = kl.MaxPool2D(pool_size=(2, 2), strides=(2, 2), padding='valid')(block4)
+    maxp2 = kl.MaxPool2D(pool_size=(2, 1), strides=(2, 1), padding='valid')(block4)
     # block 5
     block5 = kl.Conv2D(filters=128, kernel_size=(2, 1), padding='same', strides=(1, 1))(maxp2)
     block5 = kl.BatchNormalization(1)(block5)
@@ -309,7 +309,7 @@ def network_2_1dconv(summary=True):
     block5 = kl.Conv2D(filters=128, kernel_size=(2, 1), padding='same', strides=(1, 1))(block5)
     block5 = kl.BatchNormalization(1)(block5)
     block5 = kl.Activation('relu')(block5)
-    block4 = kl.Conv2D(filters=128, kernel_size=(1, 1), padding='valid', activation=None, strides=(2, 2))(block4)  # match dimension: 128, 1*1, 2
+    block4 = kl.Conv2D(filters=128, kernel_size=(1, 1), padding='valid', activation=None, strides=(2, 1))(block4)  # match dimension: 128, 1*1, 2
     block5 = kl.Add()([block4, block5])  # shortcut
     # block 6
     block6 = kl.Conv2D(filters=128, kernel_size=(2, 1), padding='same', strides=(1, 1))(block5)
@@ -320,7 +320,11 @@ def network_2_1dconv(summary=True):
     block6 = kl.Activation('relu')(block6)
     block6 = kl.Add()([block5, block6])  # shortcut
     # Global Average Pooling(GAP)
-    GAP = kl.GlobalAveragePooling2D(data_format='channels_last')(block6)
+    # GAP = kl.GlobalAveragePooling2D(data_format='channels_last')(block6)
+
+    block6 = kl.Conv2D(filters=64, kernel_size=(1, 1), padding='same', activation='relu', strides=(1, 1))(block6)
+    GAP = kl.Flatten()(block6)
+    GAP = kl.Dense(units=512, activation='relu')(GAP)
     # output
     outputs = kl.Dense(units=6, activation='softmax')(GAP)
     model = km.Model(inputs=inputs, outputs=outputs)
@@ -482,4 +486,4 @@ def network_1_m():
 
 if __name__ == '__main__':
     # for debugging
-    network_1a()
+    network_2_1dconv()

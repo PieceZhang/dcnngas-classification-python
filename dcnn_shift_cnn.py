@@ -3,7 +3,6 @@ from tensorflow.python import keras
 from utils_data import loadmat_1, acc_calc
 import utils_network as net
 import numpy as np
-import time
 
 
 def shift1_fit(matdir):
@@ -66,7 +65,7 @@ def shift2_onlyprevious_fit(matdir):
     trained the classifier with data from only the previous month and tested it on the current month.
     :return:
     """
-    callback = keras.callbacks.EarlyStopping(monitor='acc', min_delta=0.005, patience=10, verbose=1, mode='auto')
+    callback = keras.callbacks.EarlyStopping(monitor='acc', min_delta=0.005, patience=30, verbose=1, mode='auto')
     for tbatch in range(2, 11):
         sdata = np.ndarray((0, 8, 16, 1))
         slabel = np.ndarray((0, 6))
@@ -76,8 +75,8 @@ def shift2_onlyprevious_fit(matdir):
             sdata = np.concatenate((sdata, data), axis=0)
             slabel = np.concatenate((slabel, label), axis=0)
         '''Train Network & Save Model'''
-        model = net.network_2(summary=False)
-        model.fit(sdata, slabel, batch_size=200, epochs=80, verbose=1,
+        model = net.network_2_1dconv()
+        model.fit(sdata, slabel, batch_size=100, epochs=80, verbose=1,
                   callbacks=[callback], validation_split=0, validation_data=None, shuffle=True,
                   class_weight=None, sample_weight=None, initial_epoch=0)
         model.save('./dcnn_{}.h5'.format(tbatch))
@@ -107,5 +106,5 @@ def shift2_predict(matdir):
 
 if __name__ == '__main__':
     filepath = 'D:/A_/Enose_datasets/10board/Batch.mat'  # directory of .mat file
-    shift1_fit(filepath)
-    shift1_predict(filepath)
+    shift2_onlyprevious_fit(filepath)
+    shift2_predict(filepath)

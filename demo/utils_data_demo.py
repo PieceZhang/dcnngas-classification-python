@@ -42,7 +42,7 @@ def acc_calc(label, result):
         if label[index, result[index]] == 1:
             right[result[index]] = right[result[index]] + 1
         else:
-            wrong[result[index]] = wrong[result[index]] + 1  # TODO 有错误，不会影响总精度计算，但会导致各气体精度错误
+            wrong[result[index]] = wrong[result[index]] + 1  # 有错误，不会影响总精度计算，但会导致各气体精度错误
     for index in range(6):
         if right[index] + wrong[index] != 0:
             acc.append(right[index] / (right[index] + wrong[index]))

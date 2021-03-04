@@ -5,7 +5,7 @@ import tensorflow as tf
 
 from tensorflow.python.keras import models as km
 from utils_data import loadmat_1, acc_calc, loadmat_2
-import utils_network as net
+# from utils_network import network_1a_arcface
 import numpy as np
 
 class ArcFace(Layer):
@@ -56,13 +56,11 @@ class ArcFace(Layer):
 
 
 if __name__ == '__main__':
-    # data_train, label_train, data_test, label_test = loadmat_2('D:/A_/Enose_datasets/5board/board_lite.mat',
-    #                                                            shuffle=True, split=0.9)
     data_train, label_train, data_test, label_test = loadmat_1('D:/A_/Enose_datasets/10board/Batch.mat',
                                                                shuffle=True, split=0.9, batch=10)
 
     '''Train Network & Save Model'''
-    model = net.network_1a_arcface()
+    model = network_1a_arcface()
     history = model.fit([data_train, label_train], label_train, batch_size=80, epochs=30, verbose=1,
                         callbacks=None, validation_split=0.0, validation_data=[[data_test, label_test], label_test], shuffle=True,
                         class_weight=None, sample_weight=None, initial_epoch=0)
