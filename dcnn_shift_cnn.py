@@ -6,13 +6,13 @@ import utils_network as net
 import numpy as np
 
 
-def shift1_fit(matdir):
+def shift1_fit():
     """
     一块训练，一块测试
     :return:
     """
     for sbatch in range(1, 11):
-        sdata, slabel = loadmat_1(matdir, batch=sbatch, shuffle=True, split=1)
+        sdata, slabel = loadmat_1(batch=sbatch, shuffle=True, split=1)
         '''Train Network & Save Model'''
         model = net.network_1b()
         model.fit(sdata, slabel, batch_size=100, epochs=80, verbose=1,
@@ -21,7 +21,7 @@ def shift1_fit(matdir):
         model.save('./dcnn_{}.h5'.format(sbatch))
 
 
-def shift1_predict(matdir):
+def shift1_predict():
     """
     一块训练，一块测试
     :return:
@@ -30,7 +30,7 @@ def shift1_predict(matdir):
     for sbatch in range(1, 11):
         model = km.load_model('./dcnn_{}.h5'.format(sbatch))
         for tbatch in range(1, 11):
-            tdata, tlabel = loadmat_1(matdir, batch=tbatch, shuffle=True, split=0)
+            tdata, tlabel = loadmat_1(batch=tbatch, shuffle=True, split=0)
             result = model.predict(tdata)
             acc = acc_calc(tlabel, result)
             accrecord[sbatch - 1, tbatch - 1] = acc[6]
@@ -40,7 +40,7 @@ def shift1_predict(matdir):
     print("\nFinished")
 
 
-def shift2_fit(matdir):
+def shift2_fit():
     """
     九块训练，一块测试
     :return:
@@ -50,7 +50,7 @@ def shift2_fit(matdir):
         slabel = np.ndarray((0, 6))
         for sbatch in range(1, 11):
             if sbatch != tbatch:  # 读取除当前tbatch之外的数据作为sbatch
-                data, label = loadmat_1(matdir, batch=sbatch, shuffle=True, split=1)
+                data, label = loadmat_1(batch=sbatch, shuffle=True, split=1)
                 sdata = np.concatenate((sdata, data), axis=0)
                 slabel = np.concatenate((slabel, label), axis=0)
         '''Train Network & Save Model'''
@@ -61,7 +61,7 @@ def shift2_fit(matdir):
         model.save('./dcnn_{}.h5'.format(tbatch))
 
 
-def shift2_onlyprevious_fit(matdir):
+def shift2_onlyprevious_fit():
     """
     trained the classifier with data from only the previous month and tested it on the current month.
     :return:
@@ -72,7 +72,7 @@ def shift2_onlyprevious_fit(matdir):
         slabel = np.ndarray((0, 6))
         # tdata, tlabel = loadmat_1(matdir, batch=tbatch, shuffle=True, split=1)  # 读取tdata用于验证
         for sbatch in range(1, tbatch):  # 读取当前tbatch之前的数据作为sbatch
-            data, label = loadmat_1(matdir, batch=sbatch, shuffle=True, split=1)
+            data, label = loadmat_1(batch=sbatch, shuffle=True, split=1)
             sdata = np.concatenate((sdata, data), axis=0)
             slabel = np.concatenate((slabel, label), axis=0)
         '''Train Network & Save Model'''
@@ -83,7 +83,7 @@ def shift2_onlyprevious_fit(matdir):
         model.save('./dcnn_{}.h5'.format(tbatch))
 
 
-def shift2_predict(matdir):
+def shift2_predict():
     """
     九块训练，一块测试
     :return:
@@ -95,7 +95,7 @@ def shift2_predict(matdir):
         except OSError:
             print('./dcnn_{}.h5 is not found! skipping...'.format(tbatch))
         else:
-            tdata, tlabel = loadmat_1(matdir, batch=tbatch, shuffle=True, split=0)
+            tdata, tlabel = loadmat_1(batch=tbatch, shuffle=True, split=0)
             result = model.predict(tdata)
             acc = acc_calc(tlabel, result)
             accrecord[0, tbatch - 1] = acc[6]
@@ -105,7 +105,7 @@ def shift2_predict(matdir):
     print("\nFinished")
 
 
-def shift2_onlyprevious_arcface(matdir):
+def shift2_onlyprevious_arcface():
     """
     trained the classifier with data from only the previous month and tested it on the current month.
     :return:
@@ -117,7 +117,7 @@ def shift2_onlyprevious_arcface(matdir):
         slabel = np.ndarray((0, 6))
         # tdata, tlabel = loadmat_1(matdir, batch=tbatch, shuffle=True, split=1)  # 读取tdata用于验证
         for sbatch in range(1, tbatch):  # 读取当前tbatch之前的数据作为sbatch
-            data, label = loadmat_1(matdir, batch=sbatch, shuffle=True, split=1)
+            data, label = loadmat_1(batch=sbatch, shuffle=True, split=1)
             sdata = np.concatenate((sdata, data), axis=0)
             slabel = np.concatenate((slabel, label), axis=0)
         '''Train Network & Save Model'''
@@ -126,7 +126,7 @@ def shift2_onlyprevious_arcface(matdir):
                   callbacks=[callback], validation_split=0, validation_data=None, shuffle=True,
                   class_weight=None, sample_weight=None, initial_epoch=0)
 
-        tdata, tlabel = loadmat_1(matdir, batch=tbatch, shuffle=True, split=0)
+        tdata, tlabel = loadmat_1(batch=tbatch, shuffle=True, split=0)
         result = model.predict([tdata, tlabel])
         acc = acc_calc(tlabel, result)
         accrecord[0, tbatch - 1] = acc[6]
@@ -137,8 +137,7 @@ def shift2_onlyprevious_arcface(matdir):
 
 
 if __name__ == '__main__':
-    filepath = 'D:/A_/Enose_datasets/10board/Batch.mat'  # directory of .mat file
-    # shift2_onlyprevious_fit(filepath)
-    # shift2_predict(filepath)
+    # shift2_onlyprevious_fit()
+    # shift2_predict()
 
-    shift2_onlyprevious_arcface(filepath)
+    shift2_onlyprevious_arcface()

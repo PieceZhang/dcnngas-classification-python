@@ -18,7 +18,7 @@ import scipy.io as scio
 import numpy as np
 
 
-def loadmat_1(matdir, batch, shuffle=True, split=0.8):
+def loadmat_1(batch, matdir=None, shuffle=True, split=0.8):
     """
     10 boards
     :param shuffle: shuffle or not
@@ -28,6 +28,8 @@ def loadmat_1(matdir, batch, shuffle=True, split=0.8):
     :return: [sdata_train, label_train, data_test, label_test] (?,8,16,1) (?, 6)
     """
     assert batch > 0 & batch < 11, "Please input correct batch number"
+    if matdir is None:
+        matdir = 'D:/A_/Enose_datasets/10board/Batch.mat'
     data = scio.loadmat(matdir)
     label = data['C_label'][0, batch - 1].swapaxes(0, 1)  # (?, 6)
     length = label.shape[0]
@@ -44,7 +46,7 @@ def loadmat_1(matdir, batch, shuffle=True, split=0.8):
             length * split) + 1:]
 
 
-def loadmat_1_SDA(matdir, batch=None, shuffle=True, split=0.8):
+def loadmat_1_SDA(matdir=None, batch=None, shuffle=True, split=0.8):
     """
     load data for SDA (?, 1, 128)
     :param batch: select batch
@@ -55,6 +57,8 @@ def loadmat_1_SDA(matdir, batch=None, shuffle=True, split=0.8):
     """
     if batch is None:
         batch = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+    if matdir is None:
+        matdir = 'D:/A_/Enose_datasets/10board/Batch.mat'
     label = np.empty([0, 6])
     data = np.empty([0, 1, 128])
     origindata = scio.loadmat(matdir)
@@ -77,7 +81,7 @@ def loadmat_1_SDA(matdir, batch=None, shuffle=True, split=0.8):
             length * split) + 1:]
 
 
-def loadmat_2(matdir, shuffle=True, split=0.8):
+def loadmat_2(matdir=None, shuffle=True, split=0.8):
     """
     5 boards (600s时间序列，只取后8列的前300s，30000个数据)
     :param shuffle: shuffle or not
@@ -85,6 +89,8 @@ def loadmat_2(matdir, shuffle=True, split=0.8):
     :param split: validation split, ex. split=0.9, 90% data for training, others for testing
     :return: [sdata_train, label_train, data_test, label_test] (?,300,8,1) (?, 6)
     """
+    if matdir is None:
+        matdir = 'D:/A_/Enose_datasets/5board/board_lite.mat'
     tempt = scio.loadmat(matdir)
     tempt = np.concatenate((tempt['board1lite'][0, 0][:], tempt['board2lite'][0, 0][:], tempt['board3lite'][0, 0][:],
                             tempt['board4lite'][0, 0][:], tempt['board5lite'][0, 0][:]), axis=1).swapaxes(0, 1)
@@ -113,6 +119,38 @@ def loadmat_2(matdir, shuffle=True, split=0.8):
                data[int(length * split) + 1:], label[int(length * split) + 1:]
 
 
+def loadmat_3(batch, matdir=None, shuffle=True):
+    """
+    10 boards, use Batch_new.mat (normalize and reformat)
+    :param shuffle: shuffle or not
+    :param matdir: directory of .mat file
+    :param batch: select 1~10 batch
+    :return: redata, label (16,?,3,6,1), (?, 6)
+    """
+    assert batch > 0 & batch < 11, "Please input correct batch number"
+    if matdir is None:
+        matdir = 'D:/A_/Enose_datasets/10board/Batch_new.mat'
+    data = scio.loadmat(matdir)
+    label = data['C_label'][0, batch - 1].swapaxes(0, 1)  # (?, 6)
+    length = label.shape[0]
+    data = data['batch'][0, batch - 1].reshape(length, 16, 8, 1).swapaxes(1, 2)  # (?, 8, 16, 1)
+    # reformat data to redata
+    redata = np.ndarray((16, length, 3, 6, 1))
+    for sensors in range(0, 16):
+        for index in range(0, length):
+            redata[sensors, index, 0, :, 0] = data[index, 0, sensors, 0]
+            redata[sensors, index, 1, :, 0] = data[index, 2:, sensors, 0]
+            redata[sensors, index, 2, :, 0] = data[index, 1, sensors, 0]
+    if shuffle:
+        state = np.random.get_state()
+        for sensors in range(0, 16):
+            np.random.set_state(state)
+            np.random.shuffle(redata[sensors])
+        np.random.set_state(state)
+        np.random.shuffle(label)
+    return redata, label
+
+
 def acc_calc(label, result):
     """
     :param label: (None, 6)
@@ -139,5 +177,5 @@ def acc_calc(label, result):
 
 if __name__ == '__main__':
     # for debugging
-    d = loadmat_2('D:/A_/Enose_datasets/5board/board_lite.mat', split=1)
+    d = loadmat_3(batch=1)
     print()

@@ -484,6 +484,14 @@ def network_1_m():
     return model
 
 
+# add network 3
+def network_3():
+    """
+    self-defined network, use loadmat_3
+    :return:
+    """
+    pass
+
 if __name__ == '__main__':
     # for debugging
     network_2_1dconv()
