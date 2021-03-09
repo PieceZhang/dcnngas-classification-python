@@ -1,6 +1,7 @@
 from tensorflow.python.keras import models as km
 from tensorflow.python import keras
 from utils_data import loadmat_1, acc_calc
+from utils_arcface import create_custom_objects
 import utils_network as net
 import numpy as np
 
@@ -75,7 +76,7 @@ def shift2_onlyprevious_fit(matdir):
             sdata = np.concatenate((sdata, data), axis=0)
             slabel = np.concatenate((slabel, label), axis=0)
         '''Train Network & Save Model'''
-        model = net.network_2_1dconv()
+        model = net.network_1a()
         model.fit(sdata, slabel, batch_size=100, epochs=80, verbose=1,
                   callbacks=[callback], validation_split=0, validation_data=None, shuffle=True,
                   class_weight=None, sample_weight=None, initial_epoch=0)
@@ -104,7 +105,40 @@ def shift2_predict(matdir):
     print("\nFinished")
 
 
+def shift2_onlyprevious_arcface(matdir):
+    """
+    trained the classifier with data from only the previous month and tested it on the current month.
+    :return:
+    """
+    callback = keras.callbacks.EarlyStopping(monitor='acc', min_delta=0.005, patience=30, verbose=1, mode='auto')
+    accrecord = np.ndarray((1, 10))
+    for tbatch in range(2, 11):
+        sdata = np.ndarray((0, 8, 16, 1))
+        slabel = np.ndarray((0, 6))
+        # tdata, tlabel = loadmat_1(matdir, batch=tbatch, shuffle=True, split=1)  # 读取tdata用于验证
+        for sbatch in range(1, tbatch):  # 读取当前tbatch之前的数据作为sbatch
+            data, label = loadmat_1(matdir, batch=sbatch, shuffle=True, split=1)
+            sdata = np.concatenate((sdata, data), axis=0)
+            slabel = np.concatenate((slabel, label), axis=0)
+        '''Train Network & Save Model'''
+        model = net.network_1a_arcface()
+        model.fit([sdata, slabel], slabel, batch_size=100, epochs=80, verbose=1,
+                  callbacks=[callback], validation_split=0, validation_data=None, shuffle=True,
+                  class_weight=None, sample_weight=None, initial_epoch=0)
+
+        tdata, tlabel = loadmat_1(matdir, batch=tbatch, shuffle=True, split=0)
+        result = model.predict([tdata, tlabel])
+        acc = acc_calc(tlabel, result)
+        accrecord[0, tbatch - 1] = acc[6]
+        print("\n=================validation=================\n")
+        print("T domain: {}".format(tbatch))
+        print("Accuracy: {}".format(acc[6]))
+    print(result)
+
+
 if __name__ == '__main__':
     filepath = 'D:/A_/Enose_datasets/10board/Batch.mat'  # directory of .mat file
-    shift2_onlyprevious_fit(filepath)
-    shift2_predict(filepath)
+    # shift2_onlyprevious_fit(filepath)
+    # shift2_predict(filepath)
+
+    shift2_onlyprevious_arcface(filepath)

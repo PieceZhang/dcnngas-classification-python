@@ -1,7 +1,7 @@
 from tensorflow.python.keras import layers as kl
 from tensorflow.python.keras import models as km
 from tensorflow.python.keras import regularizers
-from utils_arcface import ArcFace
+from utils_arcface import ArcFace, CosFace
 # from tensorflow.python.keras.backend import l2_normalize
 
 
@@ -29,6 +29,7 @@ def network_1a():
                      activation='relu', strides=(1, 1))(bone)
     bone = kl.Flatten()(bone)
     bone = kl.Dense(units=1024, activation='relu')(bone)
+    bone = kl.Dropout(0.7)(bone)
     outputs = kl.Dense(units=6, activation='softmax')(bone)
     model = km.Model(inputs=inputs, outputs=outputs)
     model.summary()
@@ -39,7 +40,7 @@ def network_1a():
 def network_1a_arcface():
     """
     reference: An optimized Deep Convolutional Neural Network for dendrobium classification based on electronic nose
-    add arcface  TODO 漂移补偿测试
+    add arcface
     :return: model
     """
     inputs = kl.Input(shape=(8, 16, 1))
@@ -58,8 +59,8 @@ def network_1a_arcface():
     bone = kl.Conv2D(filters=16, kernel_size=(2, 1), padding='same',
                      activation='relu', strides=(1, 1))(bone)
     bone = kl.Flatten()(bone)
-    bone = kl.Dense(units=150, activation='relu')(bone)
-    outputs = ArcFace(n_classes=6, s=10, m=0.5)([bone, label])
+    bone = kl.Dense(units=1024, activation='relu', kernel_initializer='he_normal')(bone)
+    outputs = CosFace(n_classes=6, s=1, m=0.35)([bone, label])
     model = km.Model(inputs=[inputs, label], outputs=outputs)
     model.summary()
     model.compile(optimizer='adam', loss='categorical_crossentropy', metrics=['accuracy'])
@@ -322,7 +323,6 @@ def network_2_1dconv(summary=True):
     # Global Average Pooling(GAP)
     # GAP = kl.GlobalAveragePooling2D(data_format='channels_last')(block6)
 
-    block6 = kl.Conv2D(filters=64, kernel_size=(1, 1), padding='same', activation='relu', strides=(1, 1))(block6)
     GAP = kl.Flatten()(block6)
     GAP = kl.Dense(units=512, activation='relu')(GAP)
     # output
