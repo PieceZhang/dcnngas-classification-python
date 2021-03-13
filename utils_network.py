@@ -2,6 +2,8 @@ from tensorflow.python.keras import layers as kl
 from tensorflow.python.keras import models as km
 from tensorflow.python.keras import regularizers
 from utils_arcface import ArcFace, CosFace
+
+
 # from tensorflow.python.keras.backend import l2_normalize
 
 
@@ -219,7 +221,8 @@ def network_2(summary=True):
     block3 = kl.Conv2D(filters=64, kernel_size=(3, 3), padding='same', strides=(1, 1))(block3)
     block3 = kl.BatchNormalization(1)(block3)
     block3 = kl.Activation('relu')(block3)
-    block2 = kl.Conv2D(filters=64, kernel_size=(1, 1), padding='valid', strides=(2, 2))(block2)  # match dimension: 64, 1*1, 2
+    block2 = kl.Conv2D(filters=64, kernel_size=(1, 1), padding='valid', strides=(2, 2))(
+        block2)  # match dimension: 64, 1*1, 2
     block3 = kl.Add()([block2, block3])  # shortcut
     # block 4
     block4 = kl.Conv2D(filters=64, kernel_size=(3, 3), padding='same', strides=(1, 1))(block3)
@@ -238,7 +241,8 @@ def network_2(summary=True):
     block5 = kl.Conv2D(filters=128, kernel_size=(3, 3), padding='same', strides=(1, 1))(block5)
     block5 = kl.BatchNormalization(1)(block5)
     block5 = kl.Activation('relu')(block5)
-    block4 = kl.Conv2D(filters=128, kernel_size=(1, 1), padding='valid', activation=None, strides=(2, 2))(block4)  # match dimension: 128, 1*1, 2
+    block4 = kl.Conv2D(filters=128, kernel_size=(1, 1), padding='valid', activation=None, strides=(2, 2))(
+        block4)  # match dimension: 128, 1*1, 2
     block5 = kl.Add()([block4, block5])  # shortcut
     # block 6
     block6 = kl.Conv2D(filters=128, kernel_size=(3, 3), padding='same', strides=(1, 1))(block5)
@@ -291,7 +295,8 @@ def network_2_1dconv(summary=True):
     block3 = kl.Conv2D(filters=64, kernel_size=(2, 1), padding='same', strides=(1, 1))(block3)
     block3 = kl.BatchNormalization(1)(block3)
     block3 = kl.Activation('relu')(block3)
-    block2 = kl.Conv2D(filters=64, kernel_size=(1, 1), padding='valid', strides=(2, 1))(block2)  # match dimension: 64, 1*1, 2
+    block2 = kl.Conv2D(filters=64, kernel_size=(1, 1), padding='valid', strides=(2, 1))(
+        block2)  # match dimension: 64, 1*1, 2
     block3 = kl.Add()([block2, block3])  # shortcut
     # block 4
     block4 = kl.Conv2D(filters=64, kernel_size=(2, 1), padding='same', strides=(1, 1))(block3)
@@ -310,7 +315,8 @@ def network_2_1dconv(summary=True):
     block5 = kl.Conv2D(filters=128, kernel_size=(2, 1), padding='same', strides=(1, 1))(block5)
     block5 = kl.BatchNormalization(1)(block5)
     block5 = kl.Activation('relu')(block5)
-    block4 = kl.Conv2D(filters=128, kernel_size=(1, 1), padding='valid', activation=None, strides=(2, 1))(block4)  # match dimension: 128, 1*1, 2
+    block4 = kl.Conv2D(filters=128, kernel_size=(1, 1), padding='valid', activation=None, strides=(2, 1))(
+        block4)  # match dimension: 128, 1*1, 2
     block5 = kl.Add()([block4, block5])  # shortcut
     # block 6
     block6 = kl.Conv2D(filters=128, kernel_size=(2, 1), padding='same', strides=(1, 1))(block5)
@@ -365,7 +371,8 @@ def network_2_5boards(summary=True):
     block3 = kl.Conv2D(filters=64, kernel_size=(3, 3), padding='same', strides=(1, 1))(block3)
     block3 = kl.BatchNormalization(1)(block3)
     block3 = kl.Activation('relu')(block3)
-    block2 = kl.Conv2D(filters=64, kernel_size=(1, 1), padding='valid', strides=(2, 2))(block2)  # match dimension: 64, 1*1, 2
+    block2 = kl.Conv2D(filters=64, kernel_size=(1, 1), padding='valid', strides=(2, 2))(
+        block2)  # match dimension: 64, 1*1, 2
     block3 = kl.Add()([block2, block3])  # shortcut
     # block 4
     block4 = kl.Conv2D(filters=64, kernel_size=(3, 3), padding='same', strides=(1, 1))(block3)
@@ -384,7 +391,8 @@ def network_2_5boards(summary=True):
     block5 = kl.Conv2D(filters=128, kernel_size=(3, 3), padding='same', strides=(1, 1))(block5)
     block5 = kl.BatchNormalization(1)(block5)
     block5 = kl.Activation('relu')(block5)
-    block4 = kl.Conv2D(filters=128, kernel_size=(1, 1), padding='valid', activation=None, strides=(2, 2))(block4)  # match dimension: 128, 1*1, 2
+    block4 = kl.Conv2D(filters=128, kernel_size=(1, 1), padding='valid', activation=None, strides=(2, 2))(
+        block4)  # match dimension: 128, 1*1, 2
     block5 = kl.Add()([block4, block5])  # shortcut
     # block 6
     block6 = kl.Conv2D(filters=128, kernel_size=(3, 3), padding='same', strides=(1, 1))(block5)
@@ -414,7 +422,7 @@ def SDA_1(summary=True):
     reference: Domain Adaptation for Large-Scale Sentiment Classification: A Deep Learning Approach
     :return: encoder-decoder model (for training), encoder model
     """
-    inputs = kl.Input(shape=(1,128))
+    inputs = kl.Input(shape=(1, 128))
     encode = kl.Dense(64, activation='relu')(inputs)
     encode = kl.Dense(32, activation='relu')(encode)
     encode_output = kl.Dense(16)(encode)  # reduce to 16 dims
@@ -427,6 +435,7 @@ def SDA_1(summary=True):
         encoder_decoder.summary()
     encoder_decoder.compile(optimizer='adam', loss='mse')
     return encoder_decoder, encoder
+
 
 def network_1a_SDA(summary=True):
     """
@@ -456,6 +465,7 @@ def network_1a_SDA(summary=True):
         model.summary()
     model.compile(optimizer='adam', loss='categorical_crossentropy', metrics=['accuracy'])
     return model
+
 
 # add memristor net
 def network_1_m():
@@ -487,11 +497,106 @@ def network_1_m():
 # add network 3
 def network_3():
     """
-    self-defined network, use loadmat_3
+    DIY network, use loadmat_3
+    tricks1: 将大卷积分解成多个小卷积来减少计算量 3*3+3*3+2*2=5*5
+    tricks2：compound scaling 深度逐级增加
+    实验：AVGP不如MP
     :return:
     """
-    pass
+
+    def branch_create(scope):
+        assert type(scope) == str, 'TypeError: scope should be a str'
+        inputs = kl.Input(shape=(3, 6, 1), name=scope+'/Input')
+        # bone = kl.BatchNormalization(1, name=scope + '/BN0')(inputs)
+        bone = kl.Conv2D(filters=2, kernel_size=(3, 1), padding='same', strides=(1, 1), name=scope+'/Conv1')(inputs)
+        # bone = kl.BatchNormalization(1, name=scope+'/BN1')(bone)
+        bone = kl.Activation('relu', name=scope+'/relu1')(bone)
+        bone = kl.Conv2D(filters=4, kernel_size=(3, 1), padding='same', strides=(1, 1), name=scope+'/Conv2')(bone)
+        # bone = kl.BatchNormalization(1, name=scope+'/BN2')(bone)
+        bone = kl.Activation('relu', name=scope+'/relu2')(bone)
+        bone = kl.Conv2D(filters=8, kernel_size=(3, 1), padding='same', strides=(1, 1), name=scope+'/Conv3')(bone)
+        # bone = kl.BatchNormalization(1, name=scope+'/BN3')(bone)
+        bone = kl.Activation('relu', name=scope+'/relu3')(bone)
+        bone = kl.MaxPool2D(pool_size=(3, 1), strides=(1, 1), padding='valid', name=scope)(bone)
+        return inputs, bone
+
+    branch = {}
+    for branch_num in range(1, 17):
+        branch_name = 'branch{}'.format(branch_num)
+        branch[branch_name] = branch_create(branch_name)
+    tree = kl.Concatenate(axis=1, name='tree')([branch['branch1'][1], branch['branch2'][1], branch['branch3'][1],
+                                                branch['branch4'][1], branch['branch5'][1], branch['branch6'][1],
+                                                branch['branch7'][1], branch['branch8'][1], branch['branch9'][1],
+                                                branch['branch10'][1], branch['branch11'][1], branch['branch12'][1],
+                                                branch['branch13'][1], branch['branch14'][1], branch['branch15'][1],
+                                                branch['branch16'][1]])
+    tree = kl.Conv2D(filters=8, kernel_size=(1, 3), padding='same', activation='relu', strides=(1, 1))(tree)
+    tree = kl.Conv2D(filters=8, kernel_size=(1, 3), padding='same', activation='relu', strides=(1, 1))(tree)
+    tree = kl.Conv2D(filters=8, kernel_size=(1, 2), padding='same', activation='relu', strides=(1, 1))(tree)
+    tree = kl.Flatten()(tree)
+    tree = kl.Dense(units=200, activation='relu')(tree)
+    outputs = kl.Dense(units=6, activation='softmax')(tree)
+    model = km.Model(inputs=[branch['branch1'][0], branch['branch2'][0], branch['branch3'][0],branch['branch4'][0],
+                             branch['branch5'][0], branch['branch6'][0],branch['branch7'][0], branch['branch8'][0],
+                             branch['branch9'][0],branch['branch10'][0], branch['branch11'][0], branch['branch12'][0],
+                             branch['branch13'][0], branch['branch14'][0], branch['branch15'][0],branch['branch16'][0]],
+                     outputs=outputs)
+    model.summary()
+    model.compile(optimizer='adam', loss='categorical_crossentropy', metrics=['accuracy'])
+    return model
+
+
+def network_3a():
+    """
+    DIY network, use loadmat_3
+    trick1：不使用maxpooling层
+    tricks2：多层FC（非线性划分）
+    :return:
+    """
+    def branch_create(scope):
+        assert type(scope) == str, 'TypeError: scope should be a str'
+        inputs = kl.Input(shape=(3, 6, 1), name=scope+'/Input')
+        bone = kl.BatchNormalization(1, name=scope + '/BN0')(inputs)
+        bone = kl.Conv2D(filters=2, kernel_size=(3, 3), padding='same', strides=(1, 1), name=scope+'/Conv1')(bone)
+        # bone = kl.BatchNormalization(1, name=scope+'/BN1')(bone)
+        bone = kl.Activation('relu', name=scope+'/relu1')(bone)
+        bone = kl.Conv2D(filters=4, kernel_size=(3, 3), padding='same', strides=(1, 1), name=scope+'/Conv2')(bone)
+        # bone = kl.BatchNormalization(1, name=scope+'/BN2')(bone)
+        bone = kl.Activation('relu', name=scope+'/relu2')(bone)
+        bone = kl.Conv2D(filters=8, kernel_size=(3, 3), padding='same', strides=(1, 1), name=scope+'/Conv3')(bone)
+        # bone = kl.BatchNormalization(1, name=scope+'/BN3')(bone)
+        bone = kl.Activation('relu', name=scope+'/relu3')(bone)
+        # bone = kl.MaxPool2D(pool_size=(3, 3), strides=(1, 1), padding='valid', name=scope)(bone)
+        return inputs, bone
+
+    branch = {}
+    for branch_num in range(1, 17):
+        branch_name = 'branch{}'.format(branch_num)
+        branch[branch_name] = branch_create(branch_name)
+    tree = kl.Concatenate(axis=1, name='tree')([branch['branch1'][1], branch['branch2'][1], branch['branch3'][1],
+                                                branch['branch4'][1], branch['branch5'][1], branch['branch6'][1],
+                                                branch['branch7'][1], branch['branch8'][1], branch['branch9'][1],
+                                                branch['branch10'][1], branch['branch11'][1], branch['branch12'][1],
+                                                branch['branch13'][1], branch['branch14'][1], branch['branch15'][1],
+                                                branch['branch16'][1]])
+    # tree = kl.Conv2D(filters=8, kernel_size=(1, 3), padding='same', activation='relu', strides=(1, 1))(tree)
+    # tree = kl.Conv2D(filters=8, kernel_size=(1, 3), padding='same', activation='relu', strides=(1, 1))(tree)
+    # tree = kl.Conv2D(filters=8, kernel_size=(1, 2), padding='same', activation='relu', strides=(1, 1))(tree)
+    tree = kl.Flatten()(tree)
+    tree = kl.Dense(units=200, activation='relu')(tree)
+    tree = kl.Dense(units=200, activation='relu')(tree)
+    tree = kl.Dense(units=200, activation='relu')(tree)
+    outputs = kl.Dense(units=6, activation='softmax')(tree)
+    model = km.Model(inputs=[branch['branch1'][0], branch['branch2'][0], branch['branch3'][0],branch['branch4'][0],
+                             branch['branch5'][0], branch['branch6'][0],branch['branch7'][0], branch['branch8'][0],
+                             branch['branch9'][0],branch['branch10'][0], branch['branch11'][0], branch['branch12'][0],
+                             branch['branch13'][0], branch['branch14'][0], branch['branch15'][0],branch['branch16'][0]],
+                     outputs=outputs)
+    model.summary()
+    model.compile(optimizer='adam', loss='categorical_crossentropy', metrics=['accuracy'])
+    return model
+
 
 if __name__ == '__main__':
     # for debugging
-    network_2_1dconv()
+    network_3()

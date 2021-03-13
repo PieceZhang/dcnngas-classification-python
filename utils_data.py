@@ -129,7 +129,7 @@ def loadmat_3(batch, matdir=None, shuffle=True):
     """
     assert batch > 0 & batch < 11, "Please input correct batch number"
     if matdir is None:
-        matdir = 'D:/A_/Enose_datasets/10board/Batch_new.mat'
+        matdir = 'D:/A_/Enose_datasets/10board/Batch_new1.mat'
     data = scio.loadmat(matdir)
     label = data['C_label'][0, batch - 1].swapaxes(0, 1)  # (?, 6)
     length = label.shape[0]
