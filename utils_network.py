@@ -1,7 +1,7 @@
 from tensorflow.python.keras import layers as kl
 from tensorflow.python.keras import models as km
 from tensorflow.python.keras import regularizers
-from utils_arcface import ArcFace, CosFace
+from utils_arcface import ArcFace, CosFace, ArcFaceTrainable
 
 
 # from tensorflow.python.keras.backend import l2_normalize
@@ -631,7 +631,7 @@ def network_3a_arcface(summary=False):
     tree = kl.Flatten()(tree)
     tree = kl.Dense(units=200, activation='relu')(tree)
     tree = kl.Dense(units=200, activation='relu')(tree)
-    outputs = ArcFace(n_classes=6, s=5, m=0.05)([tree, label])
+    outputs = ArcFaceTrainable(n_classes=6)([tree, label])
     model = km.Model(inputs=[branch['branch1'][0], branch['branch2'][0], branch['branch3'][0],branch['branch4'][0],
                              branch['branch5'][0], branch['branch6'][0],branch['branch7'][0], branch['branch8'][0],
                              branch['branch9'][0],branch['branch10'][0], branch['branch11'][0], branch['branch12'][0],

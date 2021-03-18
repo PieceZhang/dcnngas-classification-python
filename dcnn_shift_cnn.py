@@ -1,7 +1,6 @@
 from tensorflow.python.keras import models as km
 from tensorflow.python import keras
 from utils_data import loadmat_1, acc_calc, loadmat_3
-from utils_arcface import create_custom_objects
 import utils_network as net
 import numpy as np
 

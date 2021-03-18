@@ -58,24 +58,52 @@ class ArcFace(Layer):
         return None, self.n_classes
 
 
-def create_custom_objects():
-    instance_holder = {"instance": None}
+class ArcFaceTrainable(Layer):
+    """
+    Ref: ArcFace：Additive Angular Margin Loss for Deep Face Recognition
+    """
 
-    class ClassWrapper(ArcFace):
-        def __init__(self, *args, **kwargs):
-            instance_holder["instance"] = self
-            super(ClassWrapper, self).__init__(*args, **kwargs)
+    def __init__(self, n_classes, regularizer=None, **kwargs):
+        super(ArcFaceTrainable, self).__init__(**kwargs)
+        self.n_classes = n_classes
+        self.regularizer = regularizers.get(regularizer)
 
-    def loss(*args):
-        method = getattr(instance_holder["instance"], "loss_function")
-        return method(*args)
+    def build(self, input_shape):
+        super(ArcFaceTrainable, self).build(input_shape[0])
+        self.W = self.add_weight(name='W',
+                                 shape=(input_shape[0][-1].value, self.n_classes),
+                                 initializer='glorot_uniform',
+                                 trainable=True,
+                                 regularizer=self.regularizer)
+        self.s = self.add_weight(name='s', shape=(1, 1), trainable=True)
+        self.m = self.add_weight(name='m', shape=(1, 1), trainable=True)
 
-    def accuracy(*args):
-        method = getattr(instance_holder["instance"], "accuracy")
-        return method(*args)
+    def call(self, inputs):
+        x, y = inputs
+        c = K.shape(x)[-1]
+        # normalize feature
+        x = tf.nn.l2_normalize(x, axis=1)
+        # normalize weights
+        W = tf.nn.l2_normalize(self.W, axis=0)
+        # dot product
+        logits = x @ W
+        # add margin
+        # clip logits to prevent zero division when backward
+        theta = tf.acos(K.clip(logits, -1.0 + K.epsilon(), 1.0 - K.epsilon()))
+        target_logits = tf.cos(theta + self.m)
+        # sin = tf.sqrt(1 - logits**2)
+        # cos_m = tf.cos(logits)
+        # sin_m = tf.sin(logits)
+        # target_logits = logits * cos_m - sin * sin_m
+        #
+        logits = logits * (1 - y) + target_logits * y
+        # feature re-scale
+        logits *= self.s
+        out = tf.nn.softmax(logits)
+        return out
 
-    return {"ClassWrapper": ClassWrapper, "ArcFace": ClassWrapper, "loss": loss,
-            "accuracy": accuracy}
+    def compute_output_shape(self, input_shape):
+        return None, self.n_classes
 
 
 class CosFace(Layer):
