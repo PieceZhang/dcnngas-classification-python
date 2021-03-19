@@ -121,12 +121,12 @@ def shift2_onlyprevious_arcface():
             slabel = np.concatenate((slabel, label), axis=0)
         '''Train Network & Save Model'''
         model = net.network_1a_arcface()
-        model.fit([sdata, slabel], slabel, batch_size=100, epochs=80, verbose=1,
+        model.fit(sdata, slabel, batch_size=100, epochs=80, verbose=1,
                   callbacks=[callback], validation_split=0, validation_data=None, shuffle=True,
                   class_weight=None, sample_weight=None, initial_epoch=0)
 
         tdata, tlabel = loadmat_1(batch=tbatch, shuffle=True, split=0)
-        result = model.predict([tdata, tlabel])
+        result = model.predict(tdata)
         acc = acc_calc(tlabel, result)
         accrecord[0, tbatch - 1] = acc[6]
         print("\n=================validation=================\n")
@@ -186,13 +186,13 @@ def shift3_onlyprevious_arcface():
         '''Train Network & Save Model'''
         model = net.network_3a_arcface()
         model.fit([sdata[0], sdata[1], sdata[2], sdata[3], sdata[4], sdata[5], sdata[6], sdata[7],
-                   sdata[8], sdata[9], sdata[10], sdata[11], sdata[12], sdata[13], sdata[14], sdata[15], slabel],
+                   sdata[8], sdata[9], sdata[10], sdata[11], sdata[12], sdata[13], sdata[14], sdata[15]],
                   slabel, batch_size=80, epochs=80, verbose=1, callbacks=[callback], validation_split=0,
                   validation_data=None, shuffle=True, class_weight=None, sample_weight=None, initial_epoch=0)
         # model.save('./dcnn_{}.h5'.format(tbatch))
         tdata, tlabel = loadmat_3(batch=tbatch, shuffle=False)
         result = model.predict([tdata[0], tdata[1], tdata[2], tdata[3], tdata[4], tdata[5], tdata[6], tdata[7],
-                                tdata[8], tdata[9], tdata[10], tdata[11], tdata[12], tdata[13], tdata[14], tdata[15], tlabel])
+                                tdata[8], tdata[9], tdata[10], tdata[11], tdata[12], tdata[13], tdata[14], tdata[15]])
         acc = acc_calc(tlabel, result)
         accrecord[0, tbatch - 1] = acc[6]
         print("\n=================validation=================\n")

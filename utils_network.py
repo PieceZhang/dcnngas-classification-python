@@ -46,7 +46,6 @@ def network_1a_arcface():
     :return: model
     """
     inputs = kl.Input(shape=(8, 16, 1))
-    label = kl.Input(shape=(6,))
     bone = kl.BatchNormalization(1)(inputs)  # modified: 加入BN层，极大加快收敛速度并提高准确率  TODO 改为layernorm可能效果更好
     bone = kl.Conv2D(filters=32, kernel_size=(2, 1), padding='same',
                      activation='relu', strides=(1, 1))(bone)
@@ -62,8 +61,8 @@ def network_1a_arcface():
                      activation='relu', strides=(1, 1))(bone)
     bone = kl.Flatten()(bone)
     bone = kl.Dense(units=1024, activation='relu', kernel_initializer='he_normal')(bone)
-    outputs = ArcFace(n_classes=6, s=1, m=0.35)([bone, label])
-    model = km.Model(inputs=[inputs, label], outputs=outputs)
+    outputs = ArcFace(n_classes=6, s=1, m=0.35)(bone)
+    model = km.Model(inputs=inputs, outputs=outputs)
     model.summary()
     model.compile(optimizer='adam', loss='categorical_crossentropy', metrics=['accuracy'])
     return model
@@ -617,7 +616,6 @@ def network_3a_arcface(summary=False):
         # bone = kl.MaxPool2D(pool_size=(3, 3), strides=(1, 1), padding='valid', name=scope)(bone)
         return inputs, bone
 
-    label = kl.Input(shape=(6,))
     branch = {}
     for branch_num in range(1, 17):
         branch_name = 'branch{}'.format(branch_num)
@@ -631,11 +629,11 @@ def network_3a_arcface(summary=False):
     tree = kl.Flatten()(tree)
     tree = kl.Dense(units=200, activation='relu')(tree)
     tree = kl.Dense(units=200, activation='relu')(tree)
-    outputs = ArcFaceTrainable(n_classes=6)([tree, label])
+    outputs = ArcFaceTrainable(n_classes=6)(tree)
     model = km.Model(inputs=[branch['branch1'][0], branch['branch2'][0], branch['branch3'][0],branch['branch4'][0],
                              branch['branch5'][0], branch['branch6'][0],branch['branch7'][0], branch['branch8'][0],
                              branch['branch9'][0],branch['branch10'][0], branch['branch11'][0], branch['branch12'][0],
-                             branch['branch13'][0], branch['branch14'][0], branch['branch15'][0],branch['branch16'][0], label],
+                             branch['branch13'][0], branch['branch14'][0], branch['branch15'][0],branch['branch16'][0]],
                      outputs=outputs)
     if summary:
         model.summary()
